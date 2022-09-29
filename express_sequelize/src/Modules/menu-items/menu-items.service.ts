@@ -1,3 +1,6 @@
+import { QueryTypes } from "sequelize";
+import { dataSource } from "../../app";
+
 export class MenuItemsService {
 
   /* TODO: complete getMenuItems so that it returns a nested menu structure
@@ -76,6 +79,18 @@ export class MenuItemsService {
   */
 
   async getMenuItems() {
-    throw new Error('TODO in task 3');
+      let res: any = await dataSource.query("SELECT * from menu_item", { raw: false, type: QueryTypes.SELECT })
+      let mapping = {} as any
+      res.map((item: any) => {
+          if (!mapping[item.parentId])
+              mapping[item.parentId] = []
+          mapping[item.parentId].push(item)
+      })
+      res = res.map((item: any) => {
+          item.children = mapping[item.id] || []
+          return item
+      })
+
+      return res
   }
 }
