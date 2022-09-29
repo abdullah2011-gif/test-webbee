@@ -1,4 +1,9 @@
+
+
+import { Op, QueryTypes } from 'sequelize';
+import { dataSource } from '../../app';
 import Event from './entities/event.entity';
+import Workshop from './entities/workshop.entity';
 
 
 export class EventsService {
@@ -85,7 +90,15 @@ export class EventsService {
      */
 
   async getEventsWithWorkshops() {
-    throw new Error('TODO task 1');
+    let events = await Event.findAll()
+    let result = [] as any
+    await Promise.all(events.map(async (ev) => {
+      let data = ev.toJSON()
+      let workshops = await Workshop.findAll({ where: { eventId: data.id } })
+      if (workshops.length)
+        result.push({ ...data, workshops })
+    }))
+    return result
   }
 
   /* TODO: complete getFutureEventWithWorkshops so that it returns events with workshops, that have not yet started
@@ -155,6 +168,21 @@ export class EventsService {
     ```
      */
   async getFutureEventWithWorkshops() {
-    throw new Error('TODO task 2');
+    let events = await Event.findAll()
+    let result = [] as any
+    await Promise.all(events.map(async (ev) => {
+      let data = ev.toJSON()
+      let workshops = await Workshop.findAll({
+        where: {
+          eventId: data.id,
+          start: {
+            [Op.gte]: new Date()
+          }
+        },
+      })
+      if (workshops.length)
+        result.push({ ...data, workshops })
+    }))
+    return result
   }
 }

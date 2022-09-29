@@ -5,6 +5,7 @@ import http from "http";
 import { dataSourceOptions } from "./conf/datasource";
 import { Sequelize } from "sequelize-typescript";
 
+export const dataSource = new Sequelize(dataSourceOptions);
 class App {
     public readonly app: express.Application;
     private server!: http.Server;
@@ -36,7 +37,7 @@ class App {
     }
 
     private async initializeControllers() {
-        this.dataSource = new Sequelize(dataSourceOptions);
+        this.dataSource = dataSource
         await this.dataSource.authenticate();
         this.controllers = this.controllersCallback(this);
         this.controllers.forEach((controller) => {
